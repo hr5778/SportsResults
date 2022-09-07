@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Display Results</title>
+
+
+
+  {% block content %}
+    <h2>NBA Results </h2>
+
+    <h3>Page {{ page_info.current_page }} of {{ page_info.total_pages }}</h3>
+    <a href= {{ page_info.previous_page }} class="previous">&laquo; Previous</a>
+    <a href= {{ page_info.next_page }} class="next">Next Page &raquo;</a>
+
+    <table>
+    <tr>
+      <th>Match Date</th>
+      <th>Home Team</th>
+      <th>Home Team Score</th>
+      <th>Visitor Team</th>
+      <th>Visitor Team Score</th>
+    </tr>
+    {% for result in results %}
+      <tr>
+      <td>{{ result.game_date }}</td>
+      <td>{{ result.home_team }}</td>
+      <td>{{ result.home_team_score }}</td>
+      <td>{{ result.visitor_team }}</td>
+      <td>{{ result.visitor_team_score }}</td>
+      </tr>
+    {% endfor %}
+
+</table>
+
+  {% endblock %}
+
+</head>
+<body>
+
+</body>
+</html>
