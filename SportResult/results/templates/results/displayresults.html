@@ -9,10 +9,23 @@
   {% block content %}
     <h2>NBA Results </h2>
 
-    <h3>Page {{ page_info.current_page }} of {{ page_info.total_pages }}</h3>
-    <a href= {{ page_info.previous_page }} class="previous">&laquo; Previous</a>
-    <a href= {{ page_info.next_page }} class="next">Next Page &raquo;</a>
+    <div class="pagination">
+      <span class="step-links">
+          {% if results.has_previous %}
+              <a href="?page=1">&laquo; first</a>
+              <a href="?page={{ results.previous_page_number }}">previous</a>
+          {% endif %}
 
+          <span class="current">
+              Page {{ results.number }} of {{ results.paginator.num_pages }}.
+          </span>
+
+          {% if results.has_next %}
+              <a href="?page={{ results.next_page_number }}">next</a>
+              <a href="?page={{ results.paginator.num_pages }}">last &raquo;</a>
+          {% endif %}
+      </span>
+    </div>
     <table>
     <tr>
       <th>Match Date</th>
@@ -31,7 +44,7 @@
       </tr>
     {% endfor %}
 
-</table>
+  </table>
 
   {% endblock %}
 
