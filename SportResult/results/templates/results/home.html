@@ -6,6 +6,11 @@
 
     <h1>Sports Results</h1>
 
+    {% for league in leagues %}
+    <div>
+        <a href="/results/display_results/{{league.key}}">{{ league.name }}</a>
+    </div>
+    {% endfor %}
 
     
 </head>
