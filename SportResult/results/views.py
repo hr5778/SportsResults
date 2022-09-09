@@ -3,11 +3,13 @@ import requests
 from django.core.paginator import Paginator
 from dateutil import parser
 from .models import SportLeague, Sport
+from django.http import HttpResponse
 
 
 def home(request):
-
-    # If no Sports Leagues exist then add the leagues
+    """Initial home page allowing user to choose their sports league
+    """
+   # If initial load, store sports league information in models
     if not SportLeague.objects.all().exists():
         football = Sport(name="Football")
         football.save()
@@ -25,6 +27,11 @@ def home(request):
 
 
 def parse_nba_url_results(url_nba_results):
+    """
+    Parse results from nba api and retrieve scores for each game
+    :param url_nba_results: Json from the NBA API
+    :return: List of dictionaries, where each dictionary contains the results of a game
+    """
     games = []
     for game in url_nba_results['data']:
         result = {
@@ -40,6 +47,12 @@ def parse_nba_url_results(url_nba_results):
 
 
 def parse_pl_url_results(url_pl_results, season):
+    """
+    Parse results from Premier league api and retrieve scores for each game
+    :param url_pl_results: Json results from Premier league api
+    :param season: season the api was queried with
+    :return: List of dictionaries, where each dictionary contains the results of a game
+    """
     games = []
     for game in url_pl_results['matches']:
         result = {
@@ -56,34 +69,72 @@ def parse_pl_url_results(url_pl_results, season):
 
 
 def display_results(request, league):
+    """
+    Gets the results for the 2020 season for the selected sports league
+    :param league: NBA or PL
+    :return: results of all games to be rendered in the template
+    """
+    match_date = None
+
     league_object = SportLeague.objects.get(key=league)
     api = league_object.api
 
+    if request.method == "GET" and "match_date" in request.GET:
+        match_date = request.GET["match_date"]
+
     all_games = []
-    if league == "PL":
-        request_url = api
-        headers = {'X-Auth-Token': league_object.header, 'Accept-Encoding': ''}
-        response = requests.get(request_url, headers=headers)
-        initial_results = response.json()
-        all_games.extend(parse_pl_url_results(initial_results, 2020))
-        print(initial_results)
+    if ('all_results_' + league not in request.session) or match_date is not None:
+        if league == "PL":
 
-    elif league == "NBA":
-        request_url = api + "1"
-        response = requests.get(request_url)
-        initial_results = response.json()
+            # Query PL API and parse results
+            headers = {'X-Auth-Token': league_object.header, 'Accept-Encoding': ''}
+            request_url = api
+            if match_date is not None:
+                request_url = request_url + "&dateTo=" + match_date + "&dateFrom=" + match_date
+            try:
+                response = requests.get(request_url, headers=headers)
+                initial_results = response.json()
+            except requests.exceptions.RequestException as e:
+                return HttpResponse("Error retrieving data. Please contact admin")
 
-        all_games.extend(parse_nba_url_results(initial_results))
-        total_pages = initial_results["meta"]["total_pages"]
-        page_range = range(2, total_pages + 1)
+            all_games.extend(parse_pl_url_results(initial_results, 2020))
 
-        for x in page_range:
-            response = requests.get(request_url + "1")
-            all_games.extend(parse_nba_url_results(response.json()))
+        elif league == "NBA":
+            # Query NBA API and parse results
+            request_url = api + "1"
 
-    ordered_games = sorted(all_games, key=lambda d: d['game_date'])
+            if match_date is not None:
+                request_url = request_url + "&dates[]=" + match_date
 
+            try:
+                response = requests.get(request_url)
+                initial_results = response.json()
+                all_games.extend(parse_nba_url_results(initial_results))
+                total_pages = initial_results["meta"]["total_pages"]
+                page_range = range(2, total_pages + 1)
+
+                # Return all results from the API
+                for x in page_range:
+                    request_url = api + str(x)
+                    if match_date is not None:
+                        request_url = request_url + "&dates[]=" + match_date
+                    response = requests.get(request_url)
+                    all_games.extend(parse_nba_url_results(response.json()))
+            except requests.exceptions.RequestException as e:
+                return HttpResponse("Error retrieving data. Please contact admin")
+
+        # Add all results to session
+        if match_date is None:
+            request.session["all_results_" + league] = sorted(all_games, key=lambda d: d['game_date'])
+
+    # Get results from session if a date has not been set
+    if match_date is None:
+        ordered_games = request.session["all_results_" + league]
+    else:
+        ordered_games = sorted(all_games, key=lambda d: d['game_date'])
+
+    # Paginate the results
     paginator = Paginator(ordered_games, 40)
     page_number = request.GET.get('page')
     all_pages = paginator.get_page(page_number)
-    return render(request, 'results/displayresults.html', {"results": all_pages, "league": "NBA"})
+    return render(request, 'results/displayresults.html', {"results": all_pages, "league": league_object, "match_date": match_date})

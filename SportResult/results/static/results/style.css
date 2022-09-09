@@ -1,0 +1,40 @@
+table {
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+td, th {
+  border: 1px solid #999;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+th { background-color: black; color: white }
+
+.league-button {
+  background-color: blue;
+  color: white;
+  font-weight: bold;
+  border-radius:8px;
+  padding: 10px;
+  font-size: 16px;
+  text-decoration: none;
+  margin: 2px;
+  display: block;
+  width: 15%;
+  text-align: center;
+}
+
+.back-button {
+  color: black;
+  text-decoration: none;
+  padding: 5px;
+  font-weight: bold;
+  border-color: black;
+  border-style: solid;
+  border-radius: 8px;
+  border-width: 2px;
+
+}
+
+#all-results { font-size: 12px;, padding-top: 4px; padding-bottom: 4px; margin-left: 20px;}

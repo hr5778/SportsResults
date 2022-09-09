@@ -3,12 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>Display Results</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'results/style.css' %}">
 
-
+</head>
+<body>
 
   {% block content %}
-    <h2>NBA Results </h2>
-
+    <div style="margin-top: 25px">
+        <a class="back-button" href="/results">Back to All Leagues</a>
+    </div>
+    <h1>{{ league.name }} Results </h1>
+  <h2 style="margin-bottom: 10px">
+      {% if match_date == None %}
+      All results for 2020/2021 season
+      {% else %}
+      Results on {{ match_date }}
+      {% endif %}
+  </h2>
+  <form style="padding-bottom: 10px" method="get" action="/results/display_results/{{league.key}}/date">
+      <label>Retrieve results on specific date: </label>
+      <input type="date" name="match_date" id="match_date"/>
+      <button type="submit">Submit</button>
+      {% if match_date != None %}
+      <a href="/results/display_results/{{league.key}}" class="back-button" id="all-results">Go back to all results</a>
+      {% endif %}
+  </form>
     <div class="pagination">
       <span class="step-links">
           {% if results.has_previous %}
@@ -17,7 +37,9 @@
           {% endif %}
 
           <span class="current">
-              Page {{ results.number }} of {{ results.paginator.num_pages }}.
+              <b>
+              Page {{ results.number }} of {{ results.paginator.num_pages }}
+              </b>
           </span>
 
           {% if results.has_next %}
@@ -47,9 +69,5 @@
   </table>
 
   {% endblock %}
-
-</head>
-<body>
-
 </body>
 </html>

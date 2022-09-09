@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Sports Results</title>
-
-    <h1>Sports Results</h1>
-
-    {% for league in leagues %}
-    <div>
-        <a href="/results/display_results/{{league.key}}">{{ league.name }}</a>
-    </div>
-    {% endfor %}
-
+     {% load static %}
+     <link rel="stylesheet" href="{% static 'results/style.css' %}">
     
 </head>
 <body>
-
+    <h1>Sports Results</h1>
+    <h2>Please select a league to view the results from the 2020/2021 season:</h2>
+    <div>
+        {% for league in leagues %}
+        <div style="margin:2px; padding: 10px">
+            <a class="league-button" href="/results/display_results/{{league.key}}">{{ league.name }}</a>
+        </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
