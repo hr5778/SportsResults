@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from dateutil import parser
 from .models import SportLeague, Sport
 from django.http import HttpResponse
-from ..SportResult.settings import PL_API_KEY
+from SportResult.settings import PL_API_KEY
 
 
 def home(request):
