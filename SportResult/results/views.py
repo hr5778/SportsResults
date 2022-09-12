@@ -4,19 +4,20 @@ from django.core.paginator import Paginator
 from dateutil import parser
 from .models import SportLeague, Sport
 from django.http import HttpResponse
+from ..SportResult.settings import PL_API_KEY
 
 
 def home(request):
     """Initial home page allowing user to choose their sports league
     """
-   # If initial load, store sports league information in models
+    # If initial load, store sports league information in models
     if not SportLeague.objects.all().exists():
         football = Sport(name="Football")
         football.save()
         basketball = Sport(name="Basketball")
         basketball.save()
 
-        pl = SportLeague(key="PL", name="Premier League", country="UK", sport=football, header='23ce8b7c3bdc4c3fb6a15b0f82e84246', api='http://api.football-data.org/v4/competitions/PL/matches?season=2020')
+        pl = SportLeague(key="PL", name="Premier League", country="UK", sport=football, header=PL_API_KEY, api='http://api.football-data.org/v4/competitions/PL/matches?season=2020')
         pl.save()
         nba = SportLeague(key="NBA", name="NBA", country="USA", sport=basketball, header="", api='https://www.balldontlie.io/api/v1/games?seasons[]=2020&per_page=100&page=')
         nba.save()

@@ -11,6 +11,15 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from .config import api_setting
+
+config = api_setting()
+
+# Keep the API separate
+try:
+    PL_API_KEY = config["APIs"]["PL"]["API_KEY"]
+except Exception as e:
+    raise ValueError("Please update your SportsResult/config.json file")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_o6c%1@^gb7_zqkty8qipi*)3ay!(%fzo69$nr)61#n^)(ys7)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
